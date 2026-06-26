@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发教程</title>
+    <style>
+        :root{
+            --primary:#1a1a2e;
+            --secondary:#16213e;
+            --accent:#0f3460;
+            --font-family:"Segoe UI",sans-serif;
+            --radius:8px;
+            --gap:16px;
+            --shadow:0 4px 6px rgba(0,0,0,0.3);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            font-family:var(--font-family);
+            background:#f5f5f5;
+            color:#fff;
+            line-height:1.5;
+        }
+        a{
+            color:inherit;
+            text-decoration:none;
+        }
+        header{
+            background:var(--primary);
+            padding:var(--gap);
+        }
+        .nav{
+            display:flex;
+            flex-wrap:wrap;
+            gap:var(--gap);
+            justify-content:center;
+        }
+        .nav a{
+            padding:8px 12px;
+            background:var(--secondary);
+            border-radius:var(--radius);
+            transition:background .3s;
+        }
+        .nav a:hover{
+            background:var(--accent);
+        }
+        .container{
+            max-width:1200px;
+            margin:var(--gap) auto;
+            padding:var(--gap);
+            background:#fff;
+            color:#333;
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+        }
+        @media (max-width:600px){
+            .nav{
+                flex-direction:column;
+                align-items:center;
+            }
+        }
+    </style>
+<meta name="description" content="WebGL游戏开发文档、示例教程和API参考"><meta name="keywords" content="WebGL,3D游戏,游戏开发,网页小游戏,three.js,游戏编辑器"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="开发教程"><meta property="og:description" content="WebGL游戏开发文档、示例教程和API参考"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="开发教程"><meta name="twitter:description" content="WebGL游戏开发文档、示例教程和API参考"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"开发教程","description":"WebGL游戏开发文档、示例教程和API参考","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+    <header>
+        <nav class="nav">
+            <a href="index.html">首页</a>
+            <a href="editor.html">游戏编辑器</a>
+            <a href="assets.html">资源库</a>
+            <a href="preview.html">预览调试</a>
+            <a href="publish.html">发布分享</a>
+            <a href="docs.html">开发教程</a>
+            <a href="profile.html">个人中心</a>
+            <a href="templates.html">游戏模板</a>
+        </nav>
+    </header>
+    <main class="container">
+        
+<section class="section" style="margin-bottom:var(--gap);">
+    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">开发教程概览</h2>
+    <div class="section-content" style="display:flex;flex-wrap:wrap;gap:var(--gap);">
+        <div style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
+            <h3 style="margin-bottom:8px;">快速入门</h3>
+            <p>了解如何创建一个最小的 WebGL 场景、加载资源并在编辑器中预览。</p>
+            <a href="#quick-start" class="btn" style="display:inline-block;margin-top:var(--gap);padding:8px 16px;background:var(--accent);border-radius:var(--radius);color:#fff;transition:background .3s;">查看步骤</a>
+        </div>
+        <div style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
+            <h3 style="margin-bottom:8px;">API 参考</h3>
+            <p>完整的引擎 API 列表，支持搜索和示例运行。</p>
+            <a href="#api-reference" class="btn" style="display:inline-block;margin-top:var(--gap);padding:8px 16px;background:var(--accent);border-radius:var(--radius);color:#fff;transition:background .3s;">查看 API</a>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="quick-start" style="margin-bottom:var(--gap);">
+    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">快速入门示例</h2>
+    <p>下面的示例会在页面直接创建一个旋转的彩色立方体。点击“运行示例”即可在本页看到效果。</p>
+    <div style="position:relative;padding-top:56.25%;margin-bottom:var(--gap);">
+        <canvas id="demoCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;border:1px solid var(--secondary);border-radius:var(--radius);"></canvas>
+    </div>
+    <a href="javascript:void(0)" id="runDemo" class="btn" style="display:inline-block;padding:8px 20px;background:var(--accent);color:#fff;border-radius:var(--radius);box-shadow:var(--shadow);transition:background .3s;">运行示例</a>
+    <script>
+        // 简易 WebGL 示例（无需外部库）
+        const canvas = document.getElementById('demoCanvas');
+        let gl, program, buffer, angle = 0, animId;
+
+        const vertexShaderSrc = `#version 300 es
+        in vec4 a_position;
+        in vec4 a_color;
+        uniform mat4 u_matrix;
+        out vec4 v_color;
+        void main(){
+            gl_Position = u_matrix * a_position;
+            v_color = a_color;
+        }`;
+
+        const fragmentShaderSrc = `#version 300 es
+        precision mediump float;
+        in vec4 v_color;
+        out vec4 outColor;
+        void main(){
+            outColor = v_color;
+        }`;
+
+        function createShader(type, source){
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
+                console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+
+        function initGL(){
+            gl = canvas.getContext('webgl2');
+            if(!gl){ alert('当前浏览器不支持 WebGL2'); return; }
+
+            const vs = createShader(gl.VERTEX_SHADER, vertexShaderSrc);
+            const fs = createShader(gl.FRAGMENT_SHADER, fragmentShaderSrc);
+            program = gl.createProgram();
+            gl.attachShader(program, vs);
+            gl.attachShader(program, fs);
+            gl.linkProgram(program);
+            if(!gl.getProgramParameter(program, gl.LINK_STATUS)){
+                console.error('Program link error:', gl.getProgramInfoLog(program));
+                return;
+            }
+            gl.useProgram(program);
+
+            const vertices = new Float32Array([
+                // positions        // colors
+                -0.5,-0.5,-0.5,   1,0,0,1,
+                 0.5,-0.5,-0.5,   0,1,0,1,
+                 0.5, 0.5,-0.5,   0,0,1,1,
+                -0.5, 0.5,-0.5,   1,1,0,1,
+                -0.5,-0.5, 0.5,   1,0,1,1,
+                 0.5,-0.5, 0.5,   0,1,1,1,
+                 0.5, 0.5, 0.5,   1,1,1,1,
+                -0.5, 0.5, 0.5,   0,0,0,1,
+            ]);
+            const indices = new Uint16Array([
+                0,1,2, 2,3,0,
+                4,5,6, 6,7,4,
+                0,1,5, 5,4,0,
+                2,3,7, 7,6,2,
+                0,3,7, 7,4,0,
+                1,2,6, 6,5,1
+            ]);
+
+            const vao = gl.createVertexArray();
+            gl.bindVertexArray(vao);
+
+            const vbo = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+            const ebo = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+            const posLoc = gl.getAttribLocation(program, 'a_position');
+            const colLoc = gl.getAttribLocation(program, 'a_color');
+            gl.enableVertexAttribArray(posLoc);
+            gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 7*4, 0);
+            gl.enableVertexAttribArray(colLoc);
+            gl.vertexAttribPointer(colLoc, 4, gl.FLOAT, false, 7*4, 3*4);
+        }
+
+        function render(){
+            angle += 0.01;
+            const cos = Math.cos(angle), sin = Math.sin(angle);
+            const mat = new Float32Array([
+                cos, 0, sin, 0,
+                0,   1, 0,   0,
+               -sin,0, cos, 0,
+                0,   0, -5,  1
+            ]);
+            const uMatrix = gl.getUniformLocation(program, 'u_matrix');
+            gl.uniformMatrix4fv(uMatrix, false, mat);
+
+            gl.clearColor(0.1,0.1,0.1,1);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.enable(gl.DEPTH_TEST);
+            gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
+            animId = requestAnimationFrame(render);
+        }
+
+        document.getElementById('runDemo').addEventListener('click',()=>{
+            cancelAnimationFrame(animId);
+            initGL();
+            render();
+        });
+    </script>
+</section>
+
+<section class="section" id="api-reference" style="margin-bottom:var(--gap);">
+    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">API 参考</h2>
+    <input type="text" id="apiSearch" placeholder="搜索 API…" style="width:100%;padding:8px;margin-bottom:var(--gap);border:1px solid var(--secondary);border-radius:var(--radius);">
+    <div id="apiList">
+        <div class="card" style="background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:var(--gap);">
+            <h3 style="margin-bottom:8px;">createScene()</h3>
+            <p>创建一个新的 3D 场景对象，返回 Scene 实例。</p>
+            <pre style="background:#111;padding:8px;border-radius:4px;overflow:auto;">const scene = createScene();</pre>
+        </div>
+        <div class="card" style="background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:var(--gap);">
+            <h3 style="margin-bottom:8px;">loadModel(url)</h3>
+            <p>异步加载 glTF/OBJ 模型，返回 Promise&lt;Mesh&gt;。</p>
+            <pre style="background:#111;padding:8px;border-radius:4px;overflow:auto;">loadModel('data:application/octet-stream;base64,...').then(mesh=>scene.add(mesh));</pre>
+        </div>
+        <div class="card" style="background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:var(--gap);">
+            <h3 style="margin-bottom:8px;">addLight(type, options)</h3>
+            <p>向场景中添加光源，type 可为 "directional"、"point"、"ambient"。</p>
+            <pre style="background:#111;padding:8px;border-radius:4px;overflow:auto;">addLight('directional',{direction:[0, -1, 0],color:[1,1,1]});</pre>
+        </div>
+    </div>
+    <script>
+        const apiData = [
+            {name:'createScene',desc:'创建场景',code:"const scene = createScene();"},
+            {name:'loadModel',desc:'加载模型',code:"loadModel(url).then(m=>scene.add(m));"},
+            {name:'addLight',desc:'添加光源',code:"addLight('point',{position:[0,5,0]});"},
+            {name:'setCamera',desc:'设置相机参数',code:"setCamera({fov:60,near:0.1,far:100});"},
+            {name:'playAudio',desc:'播放音效',code:"playAudio('data:audio/wav;base64,...');"}
+        ];
+        const listDiv = document.getElementById('apiList');
+        const searchInp = document.getElementById('apiSearch');
+
+        function renderList(filter=''){
+            listDiv.innerHTML = '';
+            apiData.filter(item=>item.name.includes(filter)).forEach(item=>{
+                const card = document.createElement('div');
+                card.className='card';
+                card.style.background='var(--secondary)';
+                card.style.color='#fff';
+                card.style.padding='var(--gap)';
+                card.style.borderRadius='var(--radius)';
+                card.style.boxShadow='var(--shadow)';
+                card.style.marginBottom='var(--gap)';
+                card.innerHTML = `<h3 style="margin-bottom:8px;">${item.name}()</h3>
+                    <p>${item.desc}</p>
+                    <pre style="background:#111;padding:8px;border-radius:4px;overflow:auto;">${item.code}</pre>`;
+                listDiv.appendChild(card);
+            });
+        }
+
+        searchInp.addEventListener('input',e=>renderList(e.target.value.trim()));
+        renderList();
+    </script>
+</section>
+
+    </main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
