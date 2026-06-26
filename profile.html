@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心</title>
+    <style>
+        :root{
+            --primary:#1a1a2e;
+            --secondary:#16213e;
+            --accent:#0f3460;
+            --font-family:"Segoe UI",sans-serif;
+            --radius:8px;
+            --gap:16px;
+            --shadow:0 4px 6px rgba(0,0,0,0.3);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            font-family:var(--font-family);
+            background:#f5f5f5;
+            color:#fff;
+            line-height:1.5;
+        }
+        a{
+            color:inherit;
+            text-decoration:none;
+        }
+        header{
+            background:var(--primary);
+            padding:var(--gap);
+        }
+        .nav{
+            display:flex;
+            flex-wrap:wrap;
+            gap:var(--gap);
+            justify-content:center;
+        }
+        .nav a{
+            padding:8px 12px;
+            background:var(--secondary);
+            border-radius:var(--radius);
+            transition:background .3s;
+        }
+        .nav a:hover{
+            background:var(--accent);
+        }
+        .container{
+            max-width:1200px;
+            margin:var(--gap) auto;
+            padding:var(--gap);
+            background:#fff;
+            color:#333;
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+        }
+        @media (max-width:600px){
+            .nav{
+                flex-direction:column;
+                align-items:center;
+            }
+        }
+    </style>
+<meta name="description" content="用户存档管理、项目列表和成就展示"><meta name="keywords" content="WebGL,3D游戏,游戏开发,网页小游戏,three.js,游戏编辑器"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="个人中心"><meta property="og:description" content="用户存档管理、项目列表和成就展示"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="个人中心"><meta name="twitter:description" content="用户存档管理、项目列表和成就展示"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"个人中心","description":"用户存档管理、项目列表和成就展示","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+    <header>
+        <nav class="nav">
+            <a href="index.html">首页</a>
+            <a href="editor.html">游戏编辑器</a>
+            <a href="assets.html">资源库</a>
+            <a href="preview.html">预览调试</a>
+            <a href="publish.html">发布分享</a>
+            <a href="docs.html">开发教程</a>
+            <a href="profile.html">个人中心</a>
+            <a href="templates.html">游戏模板</a>
+        </nav>
+    </header>
+    <main class="container">
+        
+<section class="section" style="margin-bottom:var(--gap);">
+    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">用户存档管理</h2>
+    <div class="section-content" style="display:flex;flex-wrap:wrap;gap:var(--gap);">
+        <div style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
+            <h3 style="margin-bottom:8px;">本地存档</h3>
+            <ul id="saveList" class="list" style="list-style:none;padding-left:0;margin-bottom:var(--gap);">
+                <!-- 动态填充 -->
+            </ul>
+            <button id="newSaveBtn" class="btn" style="display:inline-block;padding:8px 20px;background:var(--accent);color:#fff;border-radius:var(--radius);box-shadow:var(--shadow);transition:background .3s;">新建存档</button>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="margin-bottom:var(--gap);">
+    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">我的项目列表</h2>
+    <div class="section-content" style="display:flex;flex-wrap:wrap;gap:var(--gap);">
+        <div style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
+            <h3 style="margin-bottom:8px;">已创建项目</h3>
+            <ul id="projectList" class="list" style="list-style:none;padding-left:0;margin-bottom:var(--gap);">
+                <!-- 动态填充 -->
+            </ul>
+            <button id="newProjectBtn" class="btn" style="display:inline-block;padding:8px 20px;background:var(--accent);color:#fff;border-radius:var(--radius);box-shadow:var(--shadow);transition:background .3s;">创建新项目</button>
+        </div>
+    </div>
+</section>
+
+<section class="section" style="margin-bottom:var(--gap);">
+    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">成就展示</h2>
+    <div class="section-content" style="display:flex;flex-wrap:wrap;gap:var(--gap);">
+        <div id="achievementContainer" style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
+            <!-- 动态填充 -->
+        </div>
+    </div>
+</section>
+
+<script>
+(() => {
+    const saveKey = 'wgf_saves';
+    const projectKey = 'wgf_projects';
+
+    // ---------- 本地存档 ----------
+    function loadSaves() {
+        const data = JSON.parse(localStorage.getItem(saveKey) || '[]');
+        const ul = document.getElementById('saveList');
+        ul.innerHTML = '';
+        data.forEach((item, idx) => {
+            const li = document.createElement('li');
+            li.style.background = 'var(--secondary)';
+            li.style.color = '#fff';
+            li.style.padding = 'var(--gap)';
+            li.style.borderRadius = 'var(--radius)';
+            li.style.boxShadow = 'var(--shadow)';
+            li.style.marginBottom = '8px';
+            li.textContent = item.name + '（' + new Date(item.time).toLocaleString() + '）';
+            const del = document.createElement('button');
+            del.textContent = '删除';
+            del.style.marginLeft = '8px';
+            del.style.padding = '4px 8px';
+            del.style.background = 'var(--accent)';
+            del.style.border = 'none';
+            del.style.borderRadius = 'var(--radius)';
+            del.style.color = '#fff';
+            del.onclick = () => {
+                data.splice(idx,1);
+                localStorage.setItem(saveKey, JSON.stringify(data));
+                loadSaves();
+                updateAchievements();
+            };
+            li.appendChild(del);
+            ul.appendChild(li);
+        });
+    }
+
+    document.getElementById('newSaveBtn').onclick = () => {
+        const name = prompt('请输入存档名称：');
+        if (!name) return;
+        const data = JSON.parse(localStorage.getItem(saveKey) || '[]');
+        data.push({name, time: Date.now()});
+        localStorage.setItem(saveKey, JSON.stringify(data));
+        loadSaves();
+        updateAchievements();
+    };
+
+    // ---------- 项目列表 ----------
+    function loadProjects() {
+        const data = JSON.parse(localStorage.getItem(projectKey) || '[]');
+        const ul = document.getElementById('projectList');
+        ul.innerHTML = '';
+        data.forEach((proj, idx) => {
+            const li = document.createElement('li');
+            li.style.background = 'var(--secondary)';
+            li.style.color = '#fff';
+            li.style.padding = 'var(--gap)';
+            li.style.borderRadius = 'var(--radius)';
+            li.style.boxShadow = 'var(--shadow)';
+            li.style.marginBottom = '8px';
+            li.textContent = proj.title;
+            const open = document.createElement('button');
+            open.textContent = '打开';
+            open.style.marginLeft = '8px';
+            open.style.padding = '4px 8px';
+            open.style.background = 'var(--accent)';
+            open.style.border = 'none';
+            open.style.borderRadius = 'var(--radius)';
+            open.style.color = '#fff';
+            open.onclick = () => {
+                // 跳转到编辑器并传递项目 ID（使用 URL 参数）
+                location.href = `editor.html?proj=${encodeURIComponent(proj.id)}`;
+            };
+            const del = document.createElement('button');
+            del.textContent = '删除';
+            del.style.marginLeft = '4px';
+            del.style.padding = '4px 8px';
+            del.style.background = '#c00';
+            del.style.border = 'none';
+            del.style.borderRadius = 'var(--radius)';
+            del.style.color = '#fff';
+            del.onclick = () => {
+                data.splice(idx,1);
+                localStorage.setItem(projectKey, JSON.stringify(data));
+                loadProjects();
+                updateAchievements();
+            };
+            li.appendChild(open);
+            li.appendChild(del);
+            ul.appendChild(li);
+        });
+    }
+
+    document.getElementById('newProjectBtn').onclick = () => {
+        const title = prompt('请输入项目标题：');
+        if (!title) return;
+        const data = JSON.parse(localStorage.getItem(projectKey) || '[]');
+        const id = 'proj_' + Date.now();
+        data.push({id, title, created: Date.now()});
+        localStorage.setItem(projectKey, JSON.stringify(data));
+        loadProjects();
+        updateAchievements();
+    };
+
+    // ---------- 成就 ----------
+    const achievements = [
+        {id:1, name:'首次存档', condition: d => d.saves.length >= 1},
+        {id:2, name:'存档达人（5个）', condition: d => d.saves.length >= 5},
+        {id:3, name:'项目新手（1个）', condition: d => d.projects.length >= 1},
+        {id:4, name:'项目大师（10个）', condition: d => d.projects.length >= 10}
+    ];
+
+    function updateAchievements() {
+        const saves = JSON.parse(localStorage.getItem(saveKey) || '[]');
+        const projects = JSON.parse(localStorage.getItem(projectKey) || '[]');
+        const container = document.getElementById('achievementContainer');
+        container.innerHTML = '';
+        achievements.forEach(a => {
+            const earned = a.condition({saves, projects});
+            const card = document.createElement('article');
+            card.className = 'card';
+            card.style.background = earned ? 'var(--accent)' : 'var(--secondary)';
+            card.style.color = '#fff';
+            card.style.padding = 'var(--gap)';
+            card.style.borderRadius = 'var(--radius)';
+            card.style.boxShadow = 'var(--shadow)';
+            card.style.marginBottom = 'var(--gap)';
+            const title = document.createElement('h3');
+            title.textContent = a.name;
+            const status = document.createElement('p');
+            status.textContent = earned ? '已获得' : '未达成';
+            card.appendChild(title);
+            card.appendChild(status);
+            container.appendChild(card);
+        });
+    }
+
+    // 初始化
+    loadSaves();
+    loadProjects();
+    updateAchievements();
+})();
+</script>
+
+    </main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
