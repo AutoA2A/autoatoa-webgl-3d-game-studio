@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏编辑器</title>
+    <style>
+        :root{
+            --primary:#1a1a2e;
+            --secondary:#16213e;
+            --accent:#0f3460;
+            --font-family:"Segoe UI",sans-serif;
+            --radius:8px;
+            --gap:16px;
+            --shadow:0 4px 6px rgba(0,0,0,0.3);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            font-family:var(--font-family);
+            background:#f5f5f5;
+            color:#fff;
+            line-height:1.5;
+        }
+        a{
+            color:inherit;
+            text-decoration:none;
+        }
+        header{
+            background:var(--primary);
+            padding:var(--gap);
+        }
+        .nav{
+            display:flex;
+            flex-wrap:wrap;
+            gap:var(--gap);
+            justify-content:center;
+        }
+        .nav a{
+            padding:8px 12px;
+            background:var(--secondary);
+            border-radius:var(--radius);
+            transition:background .3s;
+        }
+        .nav a:hover{
+            background:var(--accent);
+        }
+        .container{
+            max-width:1200px;
+            margin:var(--gap) auto;
+            padding:var(--gap);
+            background:#fff;
+            color:#333;
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+        }
+        @media (max-width:600px){
+            .nav{
+                flex-direction:column;
+                align-items:center;
+            }
+        }
+    </style>
+<meta name="description" content="提供WebGL场景可视化编辑、节点编辑器、属性面板实时开发"><meta name="keywords" content="WebGL,3D游戏,游戏开发,网页小游戏,three.js,游戏编辑器"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="游戏编辑器"><meta property="og:description" content="提供WebGL场景可视化编辑、节点编辑器、属性面板实时开发"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="游戏编辑器"><meta name="twitter:description" content="提供WebGL场景可视化编辑、节点编辑器、属性面板实时开发"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"游戏编辑器","description":"提供WebGL场景可视化编辑、节点编辑器、属性面板实时开发","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+    <header>
+        <nav class="nav">
+            <a href="index.html">首页</a>
+            <a href="editor.html">游戏编辑器</a>
+            <a href="assets.html">资源库</a>
+            <a href="preview.html">预览调试</a>
+            <a href="publish.html">发布分享</a>
+            <a href="docs.html">开发教程</a>
+            <a href="profile.html">个人中心</a>
+            <a href="templates.html">游戏模板</a>
+        </nav>
+    </header>
+    <main class="container">
+        
+<section class="section" style="margin-bottom:var(--gap);">
+    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">游戏编辑器</h2>
+    <div class="section-content" style="display:flex;flex-wrap:wrap;gap:var(--gap);">
+        <!-- 3D 预览画布 -->
+        <div style="flex:2 1 400px;background:#000;border-radius:var(--radius);overflow:hidden;position:relative;">
+            <canvas id="glCanvas" width="800" height="600" style="width:100%;height:100%;display:block;"></canvas>
+        </div>
+        <!-- 场景对象列表 -->
+        <div style="flex:1 1 200px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
+            <h3 style="margin-bottom:8px;">场景对象</h3>
+            <ul id="nodeList" style="list-style:none;padding:0;margin:0;"></ul>
+            <a href="#" id="addCubeBtn" class="btn" style="display:inline-block;margin-top:var(--gap);padding:8px 16px;background:var(--accent);border-radius:var(--radius);color:#fff;transition:background .3s;">添加立方体</a>
+        </div>
+        <!-- 属性面板 -->
+        <div style="flex:1 1 200px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
+            <h3 style="margin-bottom:8px;">属性面板</h3>
+            <div id="propertyPanel">
+                <p>请选择对象</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+(() => {
+    const canvas = document.getElementById('glCanvas');
+    const gl = canvas.getContext('webgl');
+    if (!gl) { alert('当前浏览器不支持 WebGL'); return; }
+
+    // 顶点着色器
+    const vsSource = `
+        attribute vec3 aPosition;
+        uniform mat4 uModel;
+        uniform mat4 uView;
+        uniform mat4 uProj;
+        void main() {
+            gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
+        }
+    `;
+    // 片元着色器
+    const fsSource = `
+        precision mediump float;
+        uniform vec4 uColor;
+        void main() {
+            gl_FragColor = uColor;
+        }
+    `;
+
+    function compileShader(src, type) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, src);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+            gl.deleteShader(shader);
+            return null;
+        }
+        return shader;
+    }
+
+    const vertexShader = compileShader(vsSource, gl.VERTEX_SHADER);
+    const fragmentShader = compileShader(fsSource, gl.FRAGMENT_SHADER);
+    const program = gl.createProgram();
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.error('Program link error:', gl.getProgramInfoLog(program));
+        return;
+    }
+    gl.useProgram(program);
+
+    // 立方体顶点
+    const vertices = new Float32Array([
+        // 前面
+        -1,-1, 1,  1,-1, 1,  1, 1, 1,
+        -1,-1, 1,  1, 1, 1, -1, 1, 1,
+        // 后面
+        -1,-1,-1, -1, 1,-1,  1, 1,-1,
+        -1,-1,-1,  1, 1,-1,  1,-1,-1,
+        // 左侧
+        -1,-1,-1, -1,-1, 1, -1, 1, 1,
+        -1,-1,-1, -1, 1, 1, -1, 1,-1,
+        // 右侧
+        1,-1,-1,  1, 1,-1,  1, 1, 1,
+        1,-1,-1,  1, 1, 1,  1,-1, 1,
+        // 顶部
+        -1, 1,-1, -1, 1, 1,  1, 1, 1,
+        -1, 1,-1,  1, 1, 1,  1, 1,-1,
+        // 底部
+        -1,-1,-1,  1,-1,-1,  1,-1, 1,
+        -1,-1,-1,  1,-1, 1, -1,-1, 1
+    ]);
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+    const aPos = gl.getAttribLocation(program, 'aPosition');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 3, gl.FLOAT, false, 0, 0);
+
+    const uModel = gl.getUniformLocation(program, 'uModel');
+    const uView = gl.getUniformLocation(program, 'uView');
+    const uProj = gl.getUniformLocation(program, 'uProj');
+    const uColor = gl.getUniformLocation(program, 'uColor');
+
+    // 视图矩阵
+    const eye = [0, 0, 6];
+    const center = [0, 0, 0];
+    const up = [0, 1, 0];
+    function lookAt(eye, center, up) {
+        const z = normalize(subtract(eye, center));
+        const x = normalize(cross(up, z));
+        const y = cross(z, x);
+        return [
+            x[0], y[0], z[0], 0,
+            x[1], y[1], z[1], 0,
+            x[2], y[2], z[2], 0,
+            -dot(x, eye), -dot(y, eye), -dot(z, eye), 1
+        ];
+    }
+    // 投影矩阵
+    function perspective(fov, aspect, near, far) {
+        const f = 1.0 / Math.tan(fov / 2);
+        const nf = 1 / (near - far);
+        return [
+            f / aspect, 0, 0, 0,
+            0, f, 0, 0,
+            0, 0, (far + near) * nf, -1,
+            0, 0, (2 * far * near) * nf, 0
+        ];
+    }
+    // 向量工具
+    function subtract(a,b){return [a[0]-b[0],a[1]-b[1],a[2]-b[2]];}
+    function cross(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+    function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+    function normalize(v){const l=Math.hypot(...v);return l?v.map(x=>x/l):[0,0,0];}
+    function multiply(a,b){
+        const out = new Array(16).fill(0);
+        for(let i=0;i<4;i++)for(let j=0;j<4;j++)
+            for(let k=0;k<4;k++) out[i*4+j]+=a[i*4+k]*b[k*4+j];
+        return out;
+    }
+    function translation(t){return [1,0,0,0,0,1,0,0,0,0,1,0,t[0],t[1],t[2],1];}
+    function rotationY(angle){
+        const c=Math.cos(angle), s=Math.sin(angle);
+        return [c,0,s,0,0,1,0,0,-s,0,c,0,0,0,0,1];
+    }
+
+    const viewMat = lookAt(eye, center, up);
+    const projMat = perspective(Math.PI/4, canvas.width/canvas.height, 0.1, 100);
+    gl.uniformMatrix4fv(uView, false, new Float32Array(viewMat));
+    gl.uniformMatrix4fv(uProj, false, new Float32Array(projMat));
+
+    // 场景对象管理
+    const objects = [];
+    let selectedId = null;
+    const nodeList = document.getElementById('nodeList');
+    const propertyPanel = document.getElementById('propertyPanel');
+
+    function addCube() {
+        const id = Date.now();
+        const obj = {
+            id,
+            name: '立方体 #' + (objects.length + 1),
+            position: [0,0,0],
+            rotation: 0,
+            color: [Math.random()*0.8+0.2, Math.random()*0.8+0.2, Math.random()*0.8+0.2, 1]
+        };
+        objects.push(obj);
+        renderNodeList();
+    }
+
+    function renderNodeList() {
+        nodeList.innerHTML = '';
+        objects.forEach(o => {
+            const li = document.createElement('li');
+            li.textContent = o.name;
+            li.style.cursor = 'pointer';
+            li.style.padding = '4px 8px';
+            li.style.background = (o.id===selectedId) ? 'var(--accent)' : '';
+            li.onclick = () => selectObject(o.id);
+            nodeList.appendChild(li);
+        });
+    }
+
+    function selectObject(id) {
+        selectedId = id;
+        renderNodeList();
+        const obj = objects.find(o=>o.id===id);
+        if (!obj) return;
+        propertyPanel.innerHTML = `
+            <label>位置 X: <input type="number" step="0.1" value="${obj.position[0]}" data-ax="0"></label><br>
+            <label>位置 Y: <input type="number" step="0.1" value="${obj.position[1]}" data-ax="1"></label><br>
+            <label>位置 Z: <input type="number" step="0.1" value="${obj.position[2]}" data-ax="2"></label><br>
+            <label>旋转 Y (°): <input type="number" step="1" value="${obj.rotation*180/Math.PI}" data-rot="y"></label><br>
+            <button id="delBtn" class="btn" style="margin-top:var(--gap);">删除</button>
+        `;
+        propertyPanel.querySelectorAll('input').forEach(inp => {
+            inp.onchange = () => {
+                if (inp.dataset.ax !== undefined) {
+                    obj.position[parseInt(inp.dataset.ax)] = parseFloat(inp.value);
+                } else if (inp.dataset.rot !== undefined) {
+                    obj.rotation = parseFloat(inp.value) * Math.PI / 180;
+                }
+            };
+        });
+        document.getElementById('delBtn').onclick = () => {
+            const idx = objects.findIndex(o=>o.id===id);
+            if (idx>=0) objects.splice(idx,1);
+            selectedId = null;
+            propertyPanel.innerHTML = '<p>请选择对象</p>';
+            renderNodeList();
+        };
+    }
+
+    document.getElementById('addCubeBtn').onclick = e=>{ e.preventDefault(); addCube(); };
+
+    // 渲染循环
+    function render() {
+        gl.viewport(0,0,canvas.width,canvas.height);
+        gl.clearColor(0.1,0.1,0.1,1);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.enable(gl.DEPTH_TEST);
+
+        objects.forEach(obj => {
+            let model = translation(obj.position);
+            model = multiply(model, rotationY(obj.rotation));
+            gl.uniformMatrix4fv(uModel, false, new Float32Array(model));
+            gl.uniform4fv(uColor, new Float32Array(obj.color));
+            gl.drawArrays(gl.TRIANGLES, 0, vertices.length/3);
+        });
+
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+})();
+</script>
+
+    </main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
