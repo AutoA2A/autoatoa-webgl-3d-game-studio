@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预览调试</title>
+    <style>
+        :root{
+            --primary:#1a1a2e;
+            --secondary:#16213e;
+            --accent:#0f3460;
+            --font-family:"Segoe UI",sans-serif;
+            --radius:8px;
+            --gap:16px;
+            --shadow:0 4px 6px rgba(0,0,0,0.3);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            font-family:var(--font-family);
+            background:#f5f5f5;
+            color:#fff;
+            line-height:1.5;
+        }
+        a{
+            color:inherit;
+            text-decoration:none;
+        }
+        header{
+            background:var(--primary);
+            padding:var(--gap);
+        }
+        .nav{
+            display:flex;
+            flex-wrap:wrap;
+            gap:var(--gap);
+            justify-content:center;
+        }
+        .nav a{
+            padding:8px 12px;
+            background:var(--secondary);
+            border-radius:var(--radius);
+            transition:background .3s;
+        }
+        .nav a:hover{
+            background:var(--accent);
+        }
+        .container{
+            max-width:1200px;
+            margin:var(--gap) auto;
+            padding:var(--gap);
+            background:#fff;
+            color:#333;
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+        }
+        @media (max-width:600px){
+            .nav{
+                flex-direction:column;
+                align-items:center;
+            }
+        }
+    </style>
+<meta name="description" content="实时渲染WebGL游戏场景，提供调试控制台和性能监控"><meta name="keywords" content="WebGL,3D游戏,游戏开发,网页小游戏,three.js,游戏编辑器"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="预览调试"><meta property="og:description" content="实时渲染WebGL游戏场景，提供调试控制台和性能监控"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="预览调试"><meta name="twitter:description" content="实时渲染WebGL游戏场景，提供调试控制台和性能监控"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"预览调试","description":"实时渲染WebGL游戏场景，提供调试控制台和性能监控","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+    <header>
+        <nav class="nav">
+            <a href="index.html">首页</a>
+            <a href="editor.html">游戏编辑器</a>
+            <a href="assets.html">资源库</a>
+            <a href="preview.html">预览调试</a>
+            <a href="publish.html">发布分享</a>
+            <a href="docs.html">开发教程</a>
+            <a href="profile.html">个人中心</a>
+            <a href="templates.html">游戏模板</a>
+        </nav>
+    </header>
+    <main class="container">
+        
+<section class="section" style="margin-bottom:var(--gap);">
+    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">实时预览 &amp; 调试</h2>
+    <div class="section-content" style="display:flex;flex-wrap:wrap;gap:var(--gap);">
+        <div style="flex:2 1 600px;background:#000;border-radius:var(--radius);overflow:hidden;position:relative;">
+            <canvas id="glCanvas" width="800" height="600" style="width:100%;height:100%;display:block;"></canvas>
+            <div id="fpsOverlay" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#0f0;padding:4px 8px;border-radius:var(--radius);font-family:monospace;font-size:12px;"></div>
+        </div>
+        <div style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;">
+            <h3 style="margin-bottom:8px;">调试控制台</h3>
+            <textarea id="debugConsole" readonly style="flex:1;width:100%;background:#111;color:#0f0;font-family:monospace;padding:8px;border:none;border-radius:var(--radius);resize:none;"></textarea>
+            <div style="margin-top:var(--gap);display:flex;gap:var(--gap);">
+                <button id="resetBtn" style="flex:1;padding:8px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;cursor:pointer;">重置场景</button>
+                <button id="toggleWireframe" style="flex:1;padding:8px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;cursor:pointer;">线框模式</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+(() => {
+    const canvas = document.getElementById('glCanvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const consoleEl = document.getElementById('debugConsole');
+    const fpsEl = document.getElementById('fpsOverlay');
+    let wireframe = false;
+
+    function log(msg) {
+        consoleEl.value += msg + '\n';
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    if (!gl) {
+        log('WebGL 不支持');
+        return;
+    }
+
+    // 简单顶点/片元着色器
+    const vsSource = `
+        attribute vec4 aVertexPosition;
+        attribute vec4 aVertexColor;
+        uniform mat4 uModelViewMatrix;
+        uniform mat4 uProjectionMatrix;
+        varying lowp vec4 vColor;
+        void main(void) {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+            vColor = aVertexColor;
+        }
+    `;
+    const fsSource = `
+        varying lowp vec4 vColor;
+        void main(void) {
+            gl_FragColor = vColor;
+        }
+    `;
+
+    function loadShader(type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            log('着色器编译错误: ' + gl.getShaderInfoLog(shader));
+            gl.deleteShader(shader);
+            return null;
+        }
+        return shader;
+    }
+
+    const vertexShader = loadShader(gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = loadShader(gl.FRAGMENT_SHADER, fsSource);
+
+    const shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        log('着色器程序链接错误: ' + gl.getProgramInfoLog(shaderProgram));
+        return;
+    }
+
+    const programInfo = {
+        program: shaderProgram,
+        attribLocations: {
+            vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+            vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
+        },
+        uniformLocations: {
+            projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+            modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+        },
+    };
+
+    // 创建一个旋转的彩色立方体
+    const positions = [
+        // 前面
+        -1.0, -1.0,  1.0,
+         1.0, -1.0,  1.0,
+         1.0,  1.0,  1.0,
+        -1.0,  1.0,  1.0,
+        // 背面
+        -1.0, -1.0, -1.0,
+        -1.0,  1.0, -1.0,
+         1.0,  1.0, -1.0,
+         1.0, -1.0, -1.0,
+        // 上面
+        -1.0,  1.0, -1.0,
+        -1.0,  1.0,  1.0,
+         1.0,  1.0,  1.0,
+         1.0,  1.0, -1.0,
+        // 下面
+        -1.0, -1.0, -1.0,
+         1.0, -1.0, -1.0,
+         1.0, -1.0,  1.0,
+        -1.0, -1.0,  1.0,
+        // 右侧
+         1.0, -1.0, -1.0,
+         1.0,  1.0, -1.0,
+         1.0,  1.0,  1.0,
+         1.0, -1.0,  1.0,
+        // 左侧
+        -1.0, -1.0, -1.0,
+        -1.0, -1.0,  1.0,
+        -1.0,  1.0,  1.0,
+        -1.0,  1.0, -1.0,
+    ];
+    const colors = [
+        // 前面 红
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        // 背面 绿
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
+        // 上面 蓝
+        0.0, 0.0, 1.0, 1.0,
+        0.0, 0.0, 1.0, 1.0,
+        0.0, 0.0, 1.0, 1.0,
+        0.0, 0.0, 1.0, 1.0,
+        // 下面 黄
+        1.0, 1.0, 0.0, 1.0,
+        1.0, 1.0, 0.0, 1.0,
+        1.0, 1.0, 0.0, 1.0,
+        1.0, 1.0, 0.0, 1.0,
+        // 右侧 青
+        0.0, 1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0, 1.0,
+        // 左侧 品红
+        1.0, 0.0, 1.0, 1.0,
+        1.0, 0.0, 1.0, 1.0,
+        1.0, 0.0, 1.0, 1.0,
+        1.0, 0.0, 1.0, 1.0,
+    ];
+    const indices = [
+        0,1,2,  0,2,3,    // front
+        4,5,6,  4,6,7,    // back
+        8,9,10, 8,10,11, // top
+        12,13,14,12,14,15,// bottom
+        16,17,18,16,18,19,// right
+        20,21,22,20,22,23 // left
+    ];
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    const colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+    let then = 0;
+    let rotation = 0;
+    let frameCount = 0;
+    let fps = 0;
+    let fpsTimer = 0;
+
+    function render(now) {
+        now *= 0.001;
+        const deltaTime = now - then;
+        then = now;
+        rotation += deltaTime;
+
+        // FPS 统计
+        frameCount++;
+        fpsTimer += deltaTime;
+        if (fpsTimer >= 1.0) {
+            fps = Math.round(frameCount / fpsTimer);
+            fpsEl.textContent = fps + ' FPS';
+            frameCount = 0;
+            fpsTimer = 0;
+        }
+
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+        gl.clearColor(0.1, 0.1, 0.1, 1.0);
+        gl.clearDepth(1.0);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        const fieldOfView = 45 * Math.PI / 180;
+        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+        const zNear = 0.1;
+        const zFar = 100.0;
+        const projectionMatrix = mat4.create();
+        mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+
+        const modelViewMatrix = mat4.create();
+        mat4.translate(modelViewMatrix, modelViewMatrix, [0.0, 0.0, -6.0]);
+        mat4.rotate(modelViewMatrix, modelViewMatrix, rotation, [0, 1, 0]);
+        mat4.rotate(modelViewMatrix, modelViewMatrix, rotation * 0.7, [1, 0, 0]);
+
+        {
+            const numComponents = 3;
+            const type = gl.FLOAT;
+            const normalize = false;
+            const stride = 0;
+            const offset = 0;
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.vertexAttribPointer(
+                programInfo.attribLocations.vertexPosition,
+                numComponents,
+                type,
+                normalize,
+                stride,
+                offset);
+            gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+        }
+
+        {
+            const numComponents = 4;
+            const type = gl.FLOAT;
+            const normalize = false;
+            const stride = 0;
+            const offset = 0;
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+            gl.vertexAttribPointer(
+                programInfo.attribLocations.vertexColor,
+                numComponents,
+                type,
+                normalize,
+                stride,
+                offset);
+            gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+        }
+
+        gl.useProgram(programInfo.program);
+        gl.uniformMatrix4fv(
+            programInfo.uniformLocations.projectionMatrix,
+            false,
+            projectionMatrix);
+        gl.uniformMatrix4fv(
+            programInfo.uniformLocations.modelViewMatrix,
+            false,
+            modelViewMatrix);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        const vertexCount = 36;
+        const type = gl.UNSIGNED_SHORT;
+        const offset = 0;
+        if (wireframe) {
+            for (let i = 0; i < indices.length; i += 3) {
+                gl.drawElements(gl.LINE_LOOP, 3, type, i * 2);
+            }
+        } else {
+            gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+        }
+
+        requestAnimationFrame(render);
+    }
+
+    // 简易 mat4 实现（仅用到 create, perspective, translate, rotate）
+    const mat4 = {
+        create() {
+            return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
+        },
+        perspective(out, fovy, aspect, near, far) {
+            const f = 1.0 / Math.tan(fovy / 2);
+            const nf = 1 / (near - far);
+            out[0] = f / aspect;
+            out[1] = 0;
+            out[2] = 0;
+            out[3] = 0;
+            out[4] = 0;
+            out[5] = f;
+            out[6] = 0;
+            out[7] = 0;
+            out[8] = 0;
+            out[9] = 0;
+            out[10] = (far + near) * nf;
+            out[11] = -1;
+            out[12] = 0;
+            out[13] = 0;
+            out[14] = (2 * far * near) * nf;
+            out[15] = 0;
+        },
+        translate(out, a, v) {
+            const x = v[0], y = v[1], z = v[2];
+            out[12] = a[0]*x + a[4]*y + a[8]*z + a[12];
+            out[13] = a[1]*x + a[5]*y + a[9]*z + a[13];
+            out[14] = a[2]*x + a[6]*y + a[10]*z + a[14];
+            out[15] = a[3]*x + a[7]*y + a[11]*z + a[15];
+        },
+        rotate(out, a, rad, axis) {
+            let x = axis[0], y = axis[1], z = axis[2];
+            let len = Math.hypot(x, y, z);
+            if (len < 0.000001) return null;
+            len = 1 / len;
+            x *= len; y *= len; z *= len;
+            const s = Math.sin(rad);
+            const c = Math.cos(rad);
+            const t = 1 - c;
+
+            const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+            const a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+            const a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+
+            // Construct the rotation matrix
+            const b00 = x * x * t + c,     b01 = y * x * t + z * s, b02 = z * x * t - y * s;
+            const b10 = x * y * t - z * s, b11 = y * y * t + c,     b12 = z * y * t + x * s;
+            const b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
+
+            // Perform rotation-specific matrix multiplication
+            out[0] = a00 * b00 + a10 * b01 + a20 * b02;
+            out[1] = a01 * b00 + a11 * b01 + a21 * b02;
+            out[2] = a02 * b00 + a12 * b01 + a22 * b02;
+            out[3] = a03 * b00 + a13 * b01 + a23 * b02;
+            out[4] = a00 * b10 + a10 * b11 + a20 * b12;
+            out[5] = a01 * b10 + a11 * b11 + a21 * b12;
+            out[6] = a02 * b10 + a12 * b11 + a22 * b12;
+            out[7] = a03 * b10 + a13 * b11 + a23 * b12;
+            out[8] = a00 * b20 + a10 * b21 + a20 * b22;
+            out[9] = a01 * b20 + a11 * b21 + a21 * b22;
+            out[10]= a02 * b20 + a12 * b21 + a22 * b22;
+            out[11]= a03 * b20 + a13 * b21 + a23 * b22;
+            out[12]= a[12];
+            out[13]= a[13];
+            out[14]= a[14];
+            out[15]= a[15];
+        }
+    };
+
+    // UI 交互
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        rotation = 0;
+        log('场景已重置');
+    });
+    document.getElementById('toggleWireframe').addEventListener('click', () => {
+        wireframe = !wireframe;
+        log('线框模式: ' + (wireframe ? '开启' : '关闭'));
+    });
+
+    // 初始日志
+    log('WebGL 渲染初始化完成');
+    requestAnimationFrame(render);
+})();
+</script>
+
+    </main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
