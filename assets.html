@@ -5,168 +5,277 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>资源库</title>
     <style>
-        :root{
-            --primary:#1a1a2e;
-            --secondary:#16213e;
-            --accent:#0f3460;
-            --font-family:"Segoe UI",sans-serif;
-            --radius:8px;
-            --gap:16px;
-            --shadow:0 4px 6px rgba(0,0,0,0.3);
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
         }
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{
-            font-family:var(--font-family);
-            background:#f5f5f5;
-            color:#fff;
-            line-height:1.5;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
         }
-        a{
-            color:inherit;
-            text-decoration:none;
+        nav {
+            background-color: #3498db;
+            color: #fff;
+            padding: 8px 16px;
+            text-align: center;
         }
-        header{
-            background:var(--primary);
-            padding:var(--gap);
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
         }
-        .nav{
-            display:flex;
-            flex-wrap:wrap;
-            gap:var(--gap);
-            justify-content:center;
+        nav ul li {
+            margin-right: 20px;
         }
-        .nav a{
-            padding:8px 12px;
-            background:var(--secondary);
-            border-radius:var(--radius);
-            transition:background .3s;
+        nav a {
+            color: #fff;
+            text-decoration: none;
         }
-        .nav a:hover{
-            background:var(--accent);
+        nav a:hover {
+            text-decoration: underline;
         }
-        .container{
-            max-width:1200px;
-            margin:var(--gap) auto;
-            padding:var(--gap);
-            background:#fff;
-            color:#333;
-            border-radius:var(--radius);
-            box-shadow:var(--shadow);
+        header {
+            background-color: #3498db;
+            color: #fff;
+            padding: 16px;
+            text-align: center;
         }
-        @media (max-width:600px){
-            .nav{
-                flex-direction:column;
-                align-items:center;
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+            }
+            nav ul li {
+                margin-right: 0;
+                margin-bottom: 10px;
             }
         }
     </style>
-<meta name="description" content="3D模型、纹理、音效素材库，支持拖拽导入编辑器"><meta name="keywords" content="WebGL,3D游戏,游戏开发,网页小游戏,three.js,游戏编辑器"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="资源库"><meta property="og:description" content="3D模型、纹理、音效素材库，支持拖拽导入编辑器"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="资源库"><meta name="twitter:description" content="3D模型、纹理、音效素材库，支持拖拽导入编辑器"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"资源库","description":"3D模型、纹理、音效素材库，支持拖拽导入编辑器","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<meta name="description" content="3D模型、纹理、音效素材库，支持拖拽导入编辑器，修复拖拽导入偶发失败问题，优化移动端浏览体验"><meta name="keywords" content="WebGL,3D游戏,游戏编辑器,实时协同编辑,游戏开发"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="资源库"><meta property="og:description" content="3D模型、纹理、音效素材库，支持拖拽导入编辑器，修复拖拽导入偶发失败问题，优化移动端浏览体验"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="资源库"><meta name="twitter:description" content="3D模型、纹理、音效素材库，支持拖拽导入编辑器，修复拖拽导入偶发失败问题，优化移动端浏览体验"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"资源库","description":"3D模型、纹理、音效素材库，支持拖拽导入编辑器，修复拖拽导入偶发失败问题，优化移动端浏览体验","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
 <body>
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="editor.html">游戏编辑器</a></li>
+                <li><a href="collaboration.html">协作编辑</a></li>
+                <li><a href="templates.html">游戏模板</a></li>
+                <li><a href="assets.html">资源库</a></li>
+                <li><a href="docs.html">开发教程</a></li>
+            </ul>
+        </div>
+    </nav>
     <header>
-        <nav class="nav">
-            <a href="index.html">首页</a>
-            <a href="editor.html">游戏编辑器</a>
-            <a href="assets.html">资源库</a>
-            <a href="preview.html">预览调试</a>
-            <a href="publish.html">发布分享</a>
-            <a href="docs.html">开发教程</a>
-            <a href="profile.html">个人中心</a>
-            <a href="templates.html">游戏模板</a>
-        </nav>
+        <h1>WebGL 3D游戏工坊</h1>
     </header>
-    <main class="container">
+    <div class="container">
         
-<section class="section">
-    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">3D 模型</h2>
-    <div class="section-content">
-        <div style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
-            <div id="model-dropzone" style="border:2px dashed #fff;padding:var(--gap);text-align:center;cursor:pointer;">
-                <p>拖拽模型文件（.obj/.glb）或点击上传</p>
-                <input type="file" accept=".obj,.glb" multiple style="display:none;">
-            </div>
-            <ul id="model-list" class="list" style="margin-top:var(--gap);"></ul>
-        </div>
+<h1>资源库</h1>
+
+<section>
+  <article class="card" style="background-color: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 16px;">
+    <h3>3D 模型</h3>
+    <div id="model-dropzone" style="border:2px dashed #3498db;padding:12px;text-align:center;cursor:pointer;background:#f0f8ff;">
+      <p>拖拽模型文件（.obj/.glb）或点击上传</p>
+      <input type="file" id="model-input" accept=".obj,.glb" multiple style="display:none;">
     </div>
+    <ul id="model-list" style="list-style:none;padding:0;margin-top:12px;"></ul>
+  </article>
 </section>
 
-<section class="section">
-    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">纹理贴图</h2>
-    <div class="section-content">
-        <div style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
-            <div id="texture-dropzone" style="border:2px dashed #fff;padding:var(--gap);text-align:center;cursor:pointer;">
-                <p>拖拽图片文件（.png/.jpg）或点击上传</p>
-                <input type="file" accept="image/png,image/jpeg" multiple style="display:none;">
-            </div>
-            <ul id="texture-list" class="list" style="margin-top:var(--gap);"></ul>
-        </div>
+<section>
+  <article class="card" style="background-color: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 16px;">
+    <h3>纹理贴图</h3>
+    <div id="texture-dropzone" style="border:2px dashed #3498db;padding:12px;text-align:center;cursor:pointer;background:#f0fff8;">
+      <p>拖拽图片文件（.png/.jpg）或点击上传</p>
+      <input type="file" id="texture-input" accept="image/png,image/jpeg" multiple style="display:none;">
     </div>
+    <ul id="texture-list" style="list-style:none;padding:0;margin-top:12px;"></ul>
+  </article>
 </section>
 
-<section class="section">
-    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">音效素材</h2>
-    <div class="section-content">
-        <div style="flex:1 1 300px;background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);">
-            <div id="audio-dropzone" style="border:2px dashed #fff;padding:var(--gap);text-align:center;cursor:pointer;">
-                <p>拖拽音频文件（.mp3/.wav）或点击上传</p>
-                <input type="file" accept="audio/mpeg,audio/wav" multiple style="display:none;">
-            </div>
-            <ul id="audio-list" class="list" style="margin-top:var(--gap);"></ul>
-        </div>
+<section>
+  <article class="card" style="background-color: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 16px;">
+    <h3>音效素材</h3>
+    <div id="audio-dropzone" style="border:2px dashed #3498db;padding:12px;text-align:center;cursor:pointer;background:#fff8f0;">
+      <p>拖拽音频文件（.mp3/.wav/.ogg）或点击上传</p>
+      <input type="file" id="audio-input" accept="audio/mpeg,audio/wav,audio/ogg" multiple style="display:none;">
     </div>
+    <ul id="audio-list" style="list-style:none;padding:0;margin-top:12px;"></ul>
+  </article>
 </section>
 
 <script>
-(() => {
-    const createHandler = (zoneId, inputAccept, listId, type) => {
-        const zone = document.getElementById(zoneId);
-        const input = zone.querySelector('input');
-        const list = document.getElementById(listId);
+  // 工具函数：读取文件为 base64 或 dataURL
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = e => reject(e);
+      reader.readAsDataURL(file);
+    });
+  }
+  function readFileAsBinary(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = e => reject(e);
+      reader.readAsArrayBuffer(file);
+    });
+  }
+  // 把二进制转 base64
+  function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
 
-        const addFile = file => {
-            const li = document.createElement('li');
-            li.textContent = file.name;
-            li.style.cursor = 'pointer';
-            li.onclick = () => {
-                const event = new CustomEvent('asset-drop', {
-                    detail: { file, type }
-                });
-                window.dispatchEvent(event);
-            };
-            list.appendChild(li);
-        };
+  // 保存到 localStorage
+  function saveAsset(type, fileInfo) {
+    let assets = JSON.parse(localStorage.getItem('webglAssets') || '{}');
+    if (!assets[type]) assets[type] = [];
+    // 检查是否已存在（通过 name+size 简单判断）
+    const exists = assets[type].some(a => a.name === fileInfo.name && a.size === fileInfo.size);
+    if (!exists) {
+      assets[type].push(fileInfo);
+      localStorage.setItem('webglAssets', JSON.stringify(assets));
+    }
+  }
+  // 移除
+  function removeAsset(type, index) {
+    let assets = JSON.parse(localStorage.getItem('webglAssets') || '{}');
+    if (assets[type]) {
+      assets[type].splice(index, 1);
+      if (assets[type].length === 0) delete assets[type];
+      localStorage.setItem('webglAssets', JSON.stringify(assets));
+    }
+    renderList(type);
+  }
+  // 渲染列表
+  function renderList(type) {
+    const listEl = document.getElementById(`${type}-list`);
+    listEl.innerHTML = '';
+    const assets = JSON.parse(localStorage.getItem('webglAssets') || '{}');
+    const list = assets[type] || [];
+    list.forEach((info, idx) => {
+      const li = document.createElement('li');
+      li.style.padding = '8px';
+      li.style.borderBottom = '1px solid #eee';
+      li.style.display = 'flex';
+      li.style.alignItems = 'center';
+      li.style.justifyContent = 'space-between';
+      // 文件名
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = info.name;
+      li.appendChild(nameSpan);
+      // 预览或操作
+      const ops = document.createElement('div');
+      if (type === 'texture') {
+        const img = document.createElement('img');
+        img.src = info.data;
+        img.style.maxHeight = '40px';
+        img.style.marginRight = '8px';
+        ops.appendChild(img);
+      } else if (type === 'audio') {
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.src = info.data;
+        audio.style.maxWidth = '180px';
+        ops.appendChild(audio);
+      } else {
+        // model: 显示类型
+        const typeSpan = document.createElement('span');
+        typeSpan.textContent = info.type === 'obj' ? 'OBJ' : 'GLB';
+        ops.appendChild(typeSpan);
+      }
+      const del = document.createElement('button');
+      del.textContent = '删除';
+      del.style.background = '#e74c3c';
+      del.style.color = '#fff';
+      del.style.border = 'none';
+      del.style.padding = '4px 8px';
+      del.style.borderRadius = '4px';
+      del.style.cursor = 'pointer';
+      del.onclick = () => removeAsset(type, idx);
+      ops.appendChild(del);
+      li.appendChild(ops);
+      listEl.appendChild(li);
+    });
+  }
 
-        zone.addEventListener('click', () => input.click());
+  // 通用处理函数
+  function handleFiles(type, files) {
+    const promises = [];
+    for (const file of files) {
+      if (type === 'model') {
+        promises.push(readFileAsBinary(file).then(buf => ({
+          name: file.name,
+          size: file.size,
+          type: file.name.endsWith('.glb') ? 'glb' : 'obj',
+          data: arrayBufferToBase64(buf)
+        })));
+      } else {
+        // texture 或 audio
+        promises.push(readFileAsDataURL(file).then(data => ({
+          name: file.name,
+          size: file.size,
+          type: type,
+          data
+        })));
+      }
+    }
+    Promise.all(promises).then(results => {
+      results.forEach(info => saveAsset(type, info));
+      renderList(type);
+    }).catch(err => console.error(err));
+  }
 
-        zone.addEventListener('dragover', e => {
-            e.preventDefault();
-            zone.style.borderColor = 'var(--accent)';
-        });
-        zone.addEventListener('dragleave', () => {
-            zone.style.borderColor = '#fff';
-        });
-        zone.addEventListener('drop', e => {
-            e.preventDefault();
-            zone.style.borderColor = '#fff';
-            const files = Array.from(e.dataTransfer.files).filter(f => {
-                const ext = f.name.split('.').pop().toLowerCase();
-                return inputAccept.includes(ext);
-            });
-            files.forEach(addFile);
-        });
-
-        input.addEventListener('change', () => {
-            const files = Array.from(input.files);
-            files.forEach(addFile);
-            input.value = '';
-        });
+  // 初始化 dropzone
+  function initDropzone(type, dropzoneId, inputId) {
+    const dropzone = document.getElementById(dropzoneId);
+    const fileInput = document.getElementById(inputId);
+    // 点击触发文件选择
+    dropzone.onclick = () => fileInput.click();
+    // 拖拽事件
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+      dropzone.addEventListener(evt, e => e.preventDefault(), false);
+    });
+    dropzone.addEventListener('drop', e => {
+      e.stopPropagation();
+      dropzone.style.background = '';
+      const files = Array.from(e.dataTransfer.files);
+      handleFiles(type, files);
+    }, false);
+    dropzone.addEventListener('dragenter', () => { dropzone.style.background = '#d0e8ff'; });
+    dropzone.addEventListener('dragleave', () => { dropzone.style.background = '' });
+    dropzone.addEventListener('dragover', () => { dropzone.style.background = '#d0e8ff'; });
+    // 文件输入变化
+    fileInput.onchange = () => {
+      if (fileInput.files.length) {
+        handleFiles(type, Array.from(fileInput.files));
+        fileInput.value = ''; // 重置以便再次选择同一文件
+      }
     };
+    // 初次渲染已有数据
+    renderList(type);
+  }
 
-    createHandler('model-dropzone', ['obj','glb'], 'model-list', 'model');
-    createHandler('texture-dropzone', ['png','jpg','jpeg'], 'texture-list', 'texture');
-    createHandler('audio-dropzone', ['mp3','wav'], 'audio-list', 'audio');
-})();
+  // 初始化三个区域
+  initDropzone('model', 'model-dropzone', 'model-input');
+  initDropzone('texture', 'texture-dropzone', 'texture-input');
+  initDropzone('audio', 'audio-dropzone', 'audio-input');
 </script>
 
-    </main>
+    </div>
 <footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
 </html>
