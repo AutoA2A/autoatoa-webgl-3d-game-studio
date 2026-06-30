@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>协作编辑</title>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        nav {
+            background-color: #3498db;
+            color: #fff;
+            padding: 8px 16px;
+            text-align: center;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+        nav ul li {
+            margin-right: 20px;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        header {
+            background-color: #3498db;
+            color: #fff;
+            padding: 16px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+            }
+            nav ul li {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+<meta name="description" content="支持多人实时协同编辑同一项目"><meta name="keywords" content="WebGL,3D游戏,游戏编辑器,实时协同编辑,游戏开发"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="协作编辑"><meta property="og:description" content="支持多人实时协同编辑同一项目"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="协作编辑"><meta name="twitter:description" content="支持多人实时协同编辑同一项目"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"协作编辑","description":"支持多人实时协同编辑同一项目","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="editor.html">游戏编辑器</a></li>
+                <li><a href="collaboration.html">协作编辑</a></li>
+                <li><a href="templates.html">游戏模板</a></li>
+                <li><a href="assets.html">资源库</a></li>
+                <li><a href="docs.html">开发教程</a></li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <h1>WebGL 3D游戏工坊</h1>
+    </header>
+    <div class="container">
+        
+<article class="card" style="background-color:#fff;padding:16px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:16px;">
+    <h3>协作编辑</h3>
+    <div style="margin-bottom:8px;">
+        <label for="projName" style="display:block;margin-bottom:4px;">项目名称：</label>
+        <input type="text" id="projName" placeholder="例如：我的第一个游戏" style="width:100%;padding:6px;border:1px solid #ccc;border-radius:4px;">
+    </div>
+    <div style="margin-bottom:8px;">
+        <label for="codeArea" style="display:block;margin-bottom:4px;">项目数据（JSON）：</label>
+        <textarea id="codeArea" rows="12" style="width:100%;font-family:monospace;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;"></textarea>
+    </div>
+    <div style="margin-bottom:8px;">
+        <button style="background-color:#3498db;color:#fff;border:none;padding:8px 16px;font-size:16px;border-radius:8px;cursor:pointer;" id="saveLocal">保存到本地</button>
+        <button style="background-color:#3498db;color:#fff;border:none;padding:8px 16px;font-size:16px;border-radius:8px;cursor:pointer;" id="loadLocal">从本地加载</button>
+        <button style="background-color:#3498db;color:#fff;border:none;padding:8px 16px;font-size:16px;border-radius:8px;cursor:pointer;" id="clear">清空</button>
+        <button style="background-color:#3498db;color:#fff;border:none;padding:8px 16px;font-size:16px;border-radius:8px;cursor:pointer;" id="shareLink">分享链接</button>
+    </div>
+    <div id="status" style="font-size:0.9em;color:#555;"></div>
+</article>
+
+<section style="margin-bottom:16px;"><h2 style="margin-top:0;">协作说明</h2><p>打开此页面的多个标签或不同设备（同源）将通过 BroadcastChannel 实时同步编辑内容。修改后点击 “保存到本地” 可持久化；分享链接可跳转到编辑器并携带项目 ID。</p></section>
+
+<script>
+    const CHANNEL = 'webgl3d-collab';
+    const bc = new BroadcastChannel(CHANNEL);
+    const nameInput = document.getElementById('projName');
+    const codeArea = document.getElementById('codeArea');
+    const saveBtn = document.getElementById('saveLocal');
+    const loadBtn = document.getElementById('loadLocal');
+    const clearBtn = document.getElementById('clear');
+    const shareBtn = document.getElementById('shareLink');
+    const statusEl = document.getElementById('status');
+
+    let localId = Math.random().toString(36).substr(2, 9);
+
+    function loadFromStorage() {
+        const saved = localStorage.getItem('webgl3d_project');
+        if (saved) {
+            try {
+                const obj = JSON.parse(saved);
+                codeArea.value = JSON.stringify(obj, null, 2);
+                if (obj.name) nameInput.value = obj.name;
+            } catch (e) {
+                codeArea.value = saved;
+            }
+        }
+        updateStatus('已从本地加载');
+    }
+    function saveToStorage() {
+        const name = nameInput.value.trim() || '未命名项目';
+        let data;
+        try {
+            data = JSON.parse(codeArea.value);
+            data.name = name;
+        } catch (e) {
+            data = { name, raw: codeArea.value };
+        }
+        localStorage.setItem('webgl3d_project', JSON.stringify(data));
+        updateStatus('已保存到本地');
+    }
+    function clearAll() {
+        nameInput.value = '';
+        codeArea.value = '';
+        localStorage.removeItem('webgl3d_project');
+        updateStatus('已清空');
+    }
+    function shareLink() {
+        const projId = localStorage.getItem('webgl3d_project_id') || localId;
+        localStorage.setItem('webgl3d_project_id', projId);
+        const url = location.origin + location.pathname.replace(/[^/]+$/, '') + 'editor.html?id=' + encodeURIComponent(projId);
+        navigator.clipboard.writeText(url).then(() => {
+            updateStatus('链接已复制到剪贴板: ' + url);
+        }).catch(() => {
+            prompt('复制失败，请手动复制：', url);
+        });
+    }
+    function updateStatus(msg) {
+        statusEl.textContent = msg;
+        setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    }
+
+    bc.onmessage = ev => {
+        if (ev.sender === localId) return;
+        const {type, payload} = ev.data;
+        if (type === 'update') {
+            if (document.activeElement !== codeArea) {
+                codeArea.value = payload.code;
+                nameInput.value = payload.name || '';
+            }
+        }
+    };
+
+    let sendTimeout;
+    function sendUpdate() {
+        clearTimeout(sendTimeout);
+        sendTimeout = setTimeout(() => {
+            const msg = {
+                sender: localId,
+                type: 'update',
+                payload: {
+                    code: codeArea.value,
+                    name: nameInput.value.trim()
+                }
+            };
+            bc.postMessage(msg);
+        }, 300);
+    }
+    codeArea.addEventListener('input', sendUpdate);
+    nameInput.addEventListener('input', sendUpdate);
+
+    saveBtn.addEventListener('click', saveToStorage);
+    loadBtn.addEventListener('click', loadFromStorage);
+    clearBtn.addEventListener('click', clearAll);
+    shareBtn.addEventListener('click', shareLink);
+
+    loadFromStorage();
+</script>
+
+    </div>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
