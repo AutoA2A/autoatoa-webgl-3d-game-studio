@@ -5,175 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>游戏模板</title>
     <style>
-        :root{
-            --primary:#1a1a2e;
-            --secondary:#16213e;
-            --accent:#0f3460;
-            --font-family:"Segoe UI",sans-serif;
-            --radius:8px;
-            --gap:16px;
-            --shadow:0 4px 6px rgba(0,0,0,0.3);
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
         }
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{
-            font-family:var(--font-family);
-            background:#f5f5f5;
-            color:#fff;
-            line-height:1.5;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
         }
-        a{
-            color:inherit;
-            text-decoration:none;
+        nav {
+            background-color: #3498db;
+            color: #fff;
+            padding: 8px 16px;
+            text-align: center;
         }
-        header{
-            background:var(--primary);
-            padding:var(--gap);
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
         }
-        .nav{
-            display:flex;
-            flex-wrap:wrap;
-            gap:var(--gap);
-            justify-content:center;
+        nav ul li {
+            margin-right: 20px;
         }
-        .nav a{
-            padding:8px 12px;
-            background:var(--secondary);
-            border-radius:var(--radius);
-            transition:background .3s;
+        nav a {
+            color: #fff;
+            text-decoration: none;
         }
-        .nav a:hover{
-            background:var(--accent);
+        nav a:hover {
+            text-decoration: underline;
         }
-        .container{
-            max-width:1200px;
-            margin:var(--gap) auto;
-            padding:var(--gap);
-            background:#fff;
-            color:#333;
-            border-radius:var(--radius);
-            box-shadow:var(--shadow);
+        header {
+            background-color: #3498db;
+            color: #fff;
+            padding: 16px;
+            text-align: center;
         }
-        @media (max-width:600px){
-            .nav{
-                flex-direction:column;
-                align-items:center;
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+            }
+            nav ul li {
+                margin-right: 0;
+                margin-bottom: 10px;
             }
         }
     </style>
-<meta name="description" content="精选WebGL游戏模板库，可一键加载编辑"><meta name="keywords" content="WebGL,3D游戏,游戏开发,网页小游戏,three.js,游戏编辑器"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="游戏模板"><meta property="og:description" content="精选WebGL游戏模板库，可一键加载编辑"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="游戏模板"><meta name="twitter:description" content="精选WebGL游戏模板库，可一键加载编辑"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"游戏模板","description":"精选WebGL游戏模板库，可一键加载编辑","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<meta name="description" content="精选WebGL游戏模板库，可一键加载编辑，优化移动端适配"><meta name="keywords" content="WebGL,3D游戏,游戏编辑器,实时协同编辑,游戏开发"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="游戏模板"><meta property="og:description" content="精选WebGL游戏模板库，可一键加载编辑，优化移动端适配"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="游戏模板"><meta name="twitter:description" content="精选WebGL游戏模板库，可一键加载编辑，优化移动端适配"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"游戏模板","description":"精选WebGL游戏模板库，可一键加载编辑，优化移动端适配","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
 <body>
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="editor.html">游戏编辑器</a></li>
+                <li><a href="collaboration.html">协作编辑</a></li>
+                <li><a href="templates.html">游戏模板</a></li>
+                <li><a href="assets.html">资源库</a></li>
+                <li><a href="docs.html">开发教程</a></li>
+            </ul>
+        </div>
+    </nav>
     <header>
-        <nav class="nav">
-            <a href="index.html">首页</a>
-            <a href="editor.html">游戏编辑器</a>
-            <a href="assets.html">资源库</a>
-            <a href="preview.html">预览调试</a>
-            <a href="publish.html">发布分享</a>
-            <a href="docs.html">开发教程</a>
-            <a href="profile.html">个人中心</a>
-            <a href="templates.html">游戏模板</a>
-        </nav>
+        <h1>WebGL 3D游戏工坊</h1>
     </header>
-    <main class="container">
+    <div class="container">
         
-<section class="section" style="margin-bottom:var(--gap);">
-    <h2 style="margin-bottom:var(--gap);border-left:4px solid var(--accent);padding-left:8px;">精选游戏模板</h2>
-    <div class="section-content" style="display:flex;flex-wrap:wrap;gap:var(--gap);">
-        <!-- Template Card 1 -->
-        <article class="card" style="background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:var(--gap);flex:1 1 300px;">
-            <h3 style="margin-bottom:8px;">旋转立方体</h3>
-            <p>最基础的 3D 场景，包含一个持续旋转的立方体，适合作为学习和快速原型的起点。</p>
-            <a href="#" class="btn load-template" data-id="cube" style="display:inline-block;margin-top:var(--gap);padding:8px 16px;background:var(--accent);border-radius:var(--radius);color:#fff;transition:background .3s;">加载到编辑器</a>
-        </article>
-        <!-- Template Card 2 -->
-        <article class="card" style="background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:var(--gap);flex:1 1 300px;">
-            <h3 style="margin-bottom:8px;">简易射击场</h3>
-            <p>包含一个可移动的摄像机、射击目标以及基础的碰撞检测，演示交互与事件处理。</p>
-            <a href="#" class="btn load-template" data-id="shooter" style="display:inline-block;margin-top:var(--gap);padding:8px 16px;background:var(--accent);border-radius:var(--radius);color:#fff;transition:background .3s;">加载到编辑器</a>
-        </article>
-        <!-- Template Card 3 -->
-        <article class="card" style="background:var(--secondary);color:#fff;padding:var(--gap);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:var(--gap);flex:1 1 300px;">
-            <h3 style="margin-bottom:8px;">星空背景</h3>
-            <p>使用粒子系统实现的星空背景，可直接在此基础上添加游戏对象。</p>
-            <a href="#" class="btn load-template" data-id="starfield" style="display:inline-block;margin-top:var(--gap);padding:8px 16px;background:var(--accent);border-radius:var(--radius);color:#fff;transition:background .3s;">加载到编辑器</a>
-        </article>
+<sectionstyle="margin-bottom:16px;">
+    <h2 style="margin-top:0;">精选游戏模板</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+        <div style="background-color: #fff; padding: 16px; border-radius: 8px;">
+            <article class="card" style="background-color:#fff;padding:16px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:16px;">
+                <h3>旋转立方体</h3>
+                <p>最基础的 3D 场景，包含一个持续旋转的立方体，适合作为学习和快速原型的起点。</p>
+                <button class="btn load-template" data-id="cube" style="background-color:#3498db;color:#fff;border:none;padding:8px 16px;font-size:16px;border-radius:8px;cursor:pointer;">加载到编辑器</button>
+            </article>
+        </div>
+        <div style="background-color: #fff; padding: 16px; border-radius: 8px;">
+            <article class="card" style="background-color:#fff;padding:16px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:16px;">
+                <h3>简易射击场</h3>
+                <p>包含一个可移动的摄像机、射击目标以及基础的碰撞检测，演示交互与事件处理。</p>
+                <button class="btn load-template" data-id="shooter" style="background-color:#3498db;color:#fff;border:none;padding:8px 16px;font-size:16px;border-radius:8px;cursor:pointer;">加载到编辑器</button>
+            </article>
+        </div>
+        <div style="background-color: #fff; padding: 16px; border-radius: 8px;">
+            <article class="card" style="background-color:#fff;padding:16px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:16px;">
+                <h3>星空背景</h3>
+                <p>使用粒子系统实现的星空背景，可在此基础上添加游戏对象。</p>
+                <button class="btn load-template" data-id="starfield" style="background-color:#3498db;color:#fff;border:none;padding:8px 16px;font-size:16px;border-radius:8px;cursor:pointer;">加载到编辑器</button>
+            </article>
+        </div>
     </div>
 </section>
 
 <script>
-(() => {
-    const templates = {
-        cube: {
-            name: "旋转立方体",
-            description: "基础旋转立方体示例",
-            // 简单的 WebGL 场景描述，编辑器自行解析
-            scene: {
-                objects: [
-                    {
-                        type: "mesh",
-                        geometry: "box",
-                        material: { color: "#ff5722" },
-                        transform: { rotation: [0,0,0] },
-                        script: `function update(dt){ this.rotation[1] += dt*0.5; }`
-                    }
-                ],
-                camera: { position: [0,0,5] },
-                background: "#000"
-            }
-        },
-        shooter: {
-            name: "简易射击场",
-            description: "可移动摄像机与射击目标",
-            scene: {
-                objects: [
-                    {
-                        type: "mesh",
-                        geometry: "box",
-                        material: { color: "#4caf50" },
-                        transform: { position: [0,0,0] },
-                        script: `function onClick(){ alert('击中目标！'); }`
-                    }
-                ],
-                controls: { type: "orbit" },
-                camera: { position: [0,2,8] },
-                background: "#222"
-            }
-        },
-        starfield: {
-            name: "星空背景",
-            description: "粒子系统星空",
-            scene: {
-                particles: {
-                    count: 500,
-                    texture: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMiIgaGVpZ2h0PSIyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxjaXJjbGUgY3g9IjEiIGN5PSIxIiByPSIxIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
-                    color: "#ffffff",
-                    speed: 0.1
-                },
-                camera: { position: [0,0,0] },
-                background: "#000"
-            }
-        }
-    };
-
-    function loadTemplate(id) {
-        const tmpl = templates[id];
-        if (!tmpl) return;
-        // 保存到 localStorage，编辑器页面读取
-        localStorage.setItem('currentTemplate', JSON.stringify(tmpl));
-        // 跳转编辑器
-        location.href = 'editor.html';
-    }
-
-    document.querySelectorAll('.load-template').forEach(btn => {
-        btn.addEventListener('click', e => {
+document.addEventListener('DOMContentLoaded', function () {
+    const btns = document.querySelectorAll('.load-template');
+    btns.forEach(btn => {
+        btn.addEventListener('click', function (e) {
             e.preventDefault();
-            const id = btn.getAttribute('data-id');
-            loadTemplate(id);
+            const tid = this.getAttribute('data-id');
+            localStorage.setItem('selectedTemplate', tid);
+            window.location.href = 'editor.html';
         });
     });
-})();
+});
 </script>
 
-    </main>
+    </div>
 <footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
 </html>
